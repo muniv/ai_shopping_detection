@@ -1,0 +1,22 @@
+{% extends "layout.html" %}
+
+{% block title %}오류 - AI 쇼핑 테스트 스토어{% endblock %}
+
+{% block content %}
+<div class="container my-5 text-center">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card">
+                <div class="card-body py-5">
+                    <h1 class="display-1 text-danger">
+                        <i class="bi bi-exclamation-circle"></i>
+                    </h1>
+                    <h2 class="card-title mb-4">오류가 발생했습니다</h2>
+                    <p class="card-text lead mb-4">{{ message }}</p>
+                    <a href="/" class="btn btn-primary">홈으로 돌아가기</a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

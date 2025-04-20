@@ -1,0 +1,166 @@
+{% extends "layout.html" %}
+
+{% block title %}관리자 페이지 - AI 쇼핑 테스트 스토어{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">관리자 페이지</h1>
+    
+    <div class="alert alert-warning mb-4">
+        <h5 class="alert-heading">AI 쇼핑 속임수 시뮬레이션</h5>
+        <p class="mb-0">이 페이지에서는 상품의 가격이나 설명에 속임수를 적용하여 AI 쇼핑 속임수 탐지 시스템을 테스트할 수 있습니다.</p>
+    </div>
+    
+    <div class="row mb-5">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">상품 관리</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>ID</th>
+                                    <th>상품명</th>
+                                    <th>가격</th>
+                                    <th>설명</th>
+                                    <th>속임수 상태</th>
+                                    <th>액션</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% for product in products %}
+                                <tr>
+                                    <td>{{ product.id }}</td>
+                                    <td>{{ product.name }}</td>
+                                    <td>
+                                        {% if product.fraud_type == 'price' %}
+                                            <span class="text-muted">표시: ₩{{ "{:,}".format(product.display_price) }}</span><br>
+                                            <span class="text-danger">실제: ₩{{ "{:,}".format(product.price) }}</span>
+                                        {% else %}
+                                            ₩{{ "{:,}".format(product.price) }}
+                                        {% endif %}
+                                    </td>
+                                    <td class="small">
+                                        {% if product.fraud_type == 'description' %}
+                                            <span class="text-muted">표시: {{ product.display_description }}</span><br>
+                                            <span class="text-danger">실제: {{ product.description }}</span>
+                                            
+                                            <!-- LLM 분석 결과 표시 -->
+                                            {% if product.description_fraud %}
+                                            <div class="card mt-2 border-danger">
+                                                <div class="card-header bg-danger text-white">
+                                                    <h6 class="mb-0">AI 분석 결과</h6>
+                                                </div>
+                                                <div class="card-body">
+                                                    <p class="mb-1"><strong>속임수 점수:</strong> <span class="badge bg-danger">{{ product.deception_score|default('8/10') }}</span></p>
+                                                    {% if product.removed_benefits %}
+                                                    <p class="mb-1">허위 혜택: 
+                                                        {% for benefit in product.removed_benefits %}
+                                                        <span class="badge bg-danger me-1">{{ benefit }}</span>
+                                                        {% endfor %}
+                                                    </p>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                            {% endif %}
+                                        {% else %}
+                                            {{ product.description }}
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        {% if product.is_fraud %}
+                                            <span class="badge bg-danger">{{ product.fraud_type }} 속임수</span>
+                                        {% else %}
+                                            <span class="badge bg-success">정상</span>
+                                        {% endif %}
+                                    </td>
+                                    <td>
+                                        <div class="btn-group" role="group">
+                                            <a href="{{ url_for('toggle_fraud', product_id=product.id, fraud_type='none') }}" class="btn btn-sm btn-outline-success">정상</a>
+                                            <a href="{{ url_for('toggle_fraud', product_id=product.id, fraud_type='price') }}" class="btn btn-sm btn-outline-danger">가격 속임수</a>
+                                            <a href="{{ url_for('toggle_fraud', product_id=product.id, fraud_type='description') }}" class="btn btn-sm btn-outline-warning">설명 속임수</a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                <!-- LLM 분석 결과가 있는 경우 -->
+                                {% if product.ai_analysis %}
+                                <tr>
+                                    <td colspan="4">
+                                        <div class="mt-2">
+                                            <h6>AI 분석:</h6>
+                                            <div class="p-2 bg-light rounded">
+                                                {{ product.ai_analysis }}
+                                            </div>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endif %}
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <div class="row">
+        <div class="col-12">
+            <div class="card">
+                <div class="card-header d-flex justify-content-between align-items-center bg-white">
+                    <h5 class="mb-0">MCP API 로그</h5>
+                    <a href="{{ url_for('clear_logs') }}" class="btn btn-sm btn-outline-danger">로그 지우기</a>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-sm table-hover mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>시간</th>
+                                    <th>유형</th>
+                                    <th>엔드포인트</th>
+                                    <th>데이터</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% if mcp_logs %}
+                                    {% for log in mcp_logs|reverse %}
+                                    <tr>
+                                        <td class="small"><code>{{ log.timestamp }}</code></td>
+                                        <td>
+                                            {% if log.type == 'request' %}
+                                                <span class="badge bg-primary">요청</span>
+                                            {% else %}
+                                                <span class="badge bg-success">응답</span>
+                                            {% endif %}
+                                        </td>
+                                        <td><code>{{ log.endpoint }}</code></td>
+                                        <td>
+                                            <button class="btn btn-sm btn-outline-secondary" type="button" data-bs-toggle="collapse" data-bs-target="#log-{{ loop.index }}">
+                                                데이터 보기
+                                            </button>
+                                            <div class="collapse mt-2" id="log-{{ loop.index }}">
+                                                <div class="card card-body">
+                                                    <pre class="small mb-0"><code>{{ log.data|tojson(indent=2) }}</code></pre>
+                                                </div>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="4" class="text-center py-3">로그가 없습니다.</td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

@@ -1,0 +1,132 @@
+{% extends "layout.html" %}
+
+{% block title %}결제 - AI 쇼핑 테스트 스토어{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <h1 class="mb-4">결제</h1>
+    
+    <div class="row">
+        <!-- 주문 내역 -->
+        <div class="col-md-8 mb-4">
+            <div class="card mb-4">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">주문 상품 내역</h5>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table mb-0">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>상품명</th>
+                                    <th>상품 설명</th>
+                                    <th class="text-end">가격</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                {% set total_price = 0 %}
+                                {% for item in cart_items %}
+                                <tr>
+                                    <td>{{ item.name }}</td>
+                                    <td class="small text-muted">{{ item.description }}</td>
+                                    <td class="text-end">₩{{ "{:,}".format(item.price) }}</td>
+                                </tr>
+                                {% set total_price = total_price + item.price %}
+                                {% endfor %}
+                            </tbody>
+                            <tfoot class="table-light">
+                                <tr>
+                                    <td colspan="2" class="fw-bold">합계</td>
+                                    <td class="text-end fw-bold">₩{{ "{:,}".format(total_price) }}</td>
+                                </tr>
+                            </tfoot>
+                        </table>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="row">
+                <div class="col-md-12 mb-4">
+                    <div class="card">
+                        <div class="card-header">
+                            <h3>AI 쇼핑 속임수 탐지 결과</h3>
+                        </div>
+                        <div class="card-body">
+                            {% if has_fraud %}
+                            <div class="alert alert-warning mt-4 mb-4">
+                                <h4 class="alert-heading">AI 쇼핑 속임수 탐지 결과</h4>
+                                <p>AI가 주문 내역에서 다음과 같은 속임수를 탐지했습니다:</p>
+                                
+                                <ul class="list-group mb-3">
+                                {% for item in cart_items %}
+                                    {% if item.fraud_detected %}
+                                    <li class="list-group-item list-group-item-warning">
+                                        <strong>{{ item.name }}</strong>
+                                        {% if item.fraud_type == 'price' %}
+                                        <p>가격 불일치: 표시된 가격은 <del>{{ "{:,}".format(item.original_price) }}원</del>이지만, 실제 가격은 <strong>{{ "{:,}".format(item.price) }}원</strong>입니다.</p>
+                                        {% elif item.fraud_type == 'description' %}
+                                        <p>설명 불일치: 제품 설명에 오해의 소지가 있거나 정확하지 않은 정보가 포함되어 있습니다.</p>
+                                        {% endif %}
+                                    </li>
+                                    {% endif %}
+                                {% endfor %}
+                                </ul>
+                                
+                                <hr>
+                                <p>실제 가격과 정확한 정보로 결제가 진행됩니다.</p>
+                                <p class="mb-0">AI 기술은 온라인 쇼핑 시 속임수로부터 사용자를 보호합니다.</p>
+                            </div>
+                            {% else %}
+                            <div class="alert alert-success">
+                                <h5 class="alert-heading">속임수가 감지되지 않았습니다</h5>
+                                <p>AI 분석 결과, 구매하려는 모든 상품에서 정보 불일치가 발견되지 않았습니다. 안전하게 쇼핑을 즐기세요!</p>
+                            </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- 결제 정보 -->
+        <div class="col-md-4">
+            <div class="card">
+                <div class="card-header bg-white">
+                    <h5 class="mb-0">결제 정보</h5>
+                </div>
+                <div class="card-body">
+                    <form action="{{ url_for('checkout') }}" method="POST">
+                        <div class="mb-3">
+                            <label for="name" class="form-label">이름</label>
+                            <input type="text" class="form-control" id="name" name="name" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="email" class="form-label">이메일</label>
+                            <input type="email" class="form-control" id="email" name="email" required>
+                        </div>
+                        <div class="mb-3">
+                            <label for="address" class="form-label">주소</label>
+                            <textarea class="form-control" id="address" name="address" rows="3" required></textarea>
+                        </div>
+                        <div class="mb-3">
+                            <label for="payment" class="form-label">결제 방법</label>
+                            <select class="form-select" id="payment" name="payment" required>
+                                <option value="">결제 방법 선택</option>
+                                <option value="card">신용카드</option>
+                                <option value="bank">계좌이체</option>
+                                <option value="mobile">모바일 결제</option>
+                            </select>
+                        </div>
+                        
+                        <hr class="my-4">
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary">₩{{ "{:,}".format(total_price) }} 결제하기</button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 

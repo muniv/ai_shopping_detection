@@ -1,0 +1,30 @@
+{% extends "layout.html" %}
+
+{% block title %}AI 쇼핑 테스트 스토어 - 홈{% endblock %}
+
+{% block content %}
+<h1 class="mb-4">제품 목록</h1>
+
+<div class="row row-cols-1 row-cols-md-3 g-4">
+    {% for product in products %}
+    <div class="col">
+        <div class="card product-card h-100">
+            {% if product.is_fraud %}
+            <span class="badge bg-danger fraud-badge">속임수 활성화</span>
+            {% endif %}
+            <div class="card-body">
+                <h5 class="card-title">{{ product.name }}</h5>
+                <p class="card-text">{{ product.display_description }}</p>
+                <p class="card-text text-danger fw-bold">₩{{ "{:,}".format(product.display_price) }}</p>
+                <div class="d-flex justify-content-between">
+                    <a href="{{ url_for('product_detail', product_id=product.id) }}" class="btn btn-primary">상세보기</a>
+                    <form action="{{ url_for('add_to_cart', product_id=product.id) }}" method="post" class="d-inline">
+                        <button type="submit" class="btn btn-success">장바구니에 추가</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    {% endfor %}
+</div>
+{% endblock %} 

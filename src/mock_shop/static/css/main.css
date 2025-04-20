@@ -1,0 +1,51 @@
+/* 메인 CSS 파일 */
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+main {
+    flex: 1;
+}
+
+/* 제품 카드 스타일 */
+.product-card {
+    transition: all 0.3s ease;
+    height: 100%;
+}
+
+.product-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+.product-card .card-img-top {
+    height: 200px;
+    object-fit: cover;
+    background-color: #f8f9fa;
+}
+
+/* 관리자 페이지 스타일 */
+.admin-badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    z-index: 10;
+}
+
+/* 속임수 탐지 관련 스타일 */
+.fraud-alert {
+    border-left: 4px solid #dc3545;
+}
+
+.detection-badge {
+    position: absolute;
+    top: 0;
+    right: 0;
+    padding: 0.5rem;
+    background-color: rgba(220, 53, 69, 0.8);
+    color: white;
+    font-weight: bold;
+    border-radius: 0 0.25rem 0 0.25rem;
+} 

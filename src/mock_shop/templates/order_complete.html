@@ -1,0 +1,29 @@
+{% extends "layout.html" %}
+
+{% block title %}주문 완료 - AI 쇼핑 테스트 스토어{% endblock %}
+
+{% block content %}
+<div class="container my-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            <div class="card text-center">
+                <div class="card-body py-5">
+                    <div class="mb-4">
+                        <i class="bi bi-check-circle-fill text-success" style="font-size: 5rem;"></i>
+                    </div>
+                    <h1 class="card-title display-4 mb-4">주문 완료</h1>
+                    <p class="card-text lead mb-4">주문이 성공적으로 완료되었습니다.</p>
+                    <div class="alert alert-info mb-4">
+                        <p class="mb-0"><strong>주문번호:</strong> {{ order_id }}</p>
+                    </div>
+                    <p class="card-text">이 주문에는 AI 쇼핑 속임수 탐지 시스템이 적용되었으며, 모든 제품이 정확한 가격과 설명으로 처리되었습니다.</p>
+                    <hr class="my-4">
+                    <div class="d-grid gap-2 col-6 mx-auto">
+                        <a href="/" class="btn btn-primary">쇼핑 계속하기</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %} 
